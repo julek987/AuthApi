@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +34,15 @@ public class AuthController : ControllerBase
         }
 
         var token = GenerateJwtToken(user);
+        var csrfToken = GenerateCsrfToken();
+        
+        Response.Cookies.Append("XSRF-TOKEN", csrfToken, new CookieOptions
+        {
+            HttpOnly = false, // Set to false so client-side JavaScript can access it
+            Secure = false, // Set to true for production if using HTTPS
+            SameSite = SameSiteMode.Strict // Adjust as needed
+        });
+
         return Ok(new { token });
     }
 
@@ -91,5 +101,21 @@ public class AuthController : ControllerBase
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+    
+    private string GenerateCsrfToken()
+    {
+        var rng = RandomNumberGenerator.Create();
+        var bytes = new byte[32];
+        rng.GetBytes(bytes);
+        return Convert.ToBase64String(bytes);
+    }
+    
+    [HttpPost("validate-token")]
+    public IActionResult ValidateToken()
+    {
+        var valid = true;
+        return Ok(new { valid });
+    }
 }
+
 
