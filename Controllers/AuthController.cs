@@ -23,6 +23,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
         var user = await _context.users.SingleOrDefaultAsync(u => u.username == model.Username);
