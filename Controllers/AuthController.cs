@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,6 +10,7 @@ namespace AuthApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class AuthController : ControllerBase
 {
     private readonly UserDbContext _context;
@@ -34,6 +36,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
         // Check if the role is valid

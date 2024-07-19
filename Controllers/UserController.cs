@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly UserDbContext _context;
@@ -16,6 +18,7 @@ namespace AuthApi.Controllers
 
         // GET: api/user
         [HttpGet]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.users.ToListAsync();
@@ -23,6 +26,7 @@ namespace AuthApi.Controllers
 
         // GET: api/user/{id}
         [HttpGet("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
             var user = await _context.users.FindAsync(id);
@@ -37,6 +41,7 @@ namespace AuthApi.Controllers
         
         // DELETE: api/user/delete/{id}
         [HttpDelete("delete/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             // Find the user by ID
