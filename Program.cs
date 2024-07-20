@@ -56,7 +56,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(builder => { builder.WithOrigins("http://localhost:4200", "http://localhost:5001").AllowAnyHeader().WithMethods(["DELETE", "PUT", "POST"]);});
+app.UseCors(builder => { builder.WithOrigins("http://localhost:4200", "http://localhost:5001").AllowAnyHeader().WithMethods(["DELETE", "PUT", "POST", "GET"]).AllowCredentials();});
 
 app.UseAuthentication();
 app.UseAuthorization();
