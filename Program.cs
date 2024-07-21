@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using System.Text;
+using AuthApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,22 +18,10 @@ builder.Configuration["Jwt:Key"] = jwtKey;
 
 builder.Services.AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultAuthenticateScheme = "CustomScheme";
+        options.DefaultChallengeScheme = "CustomScheme";
     })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-        };
-    });
+    .AddScheme<AuthenticationSchemeOptions, CustomJwtAuthenticationHandler>("CustomScheme", options => { });
 
 builder.Services.AddAuthorization(options =>
 {
@@ -56,7 +46,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(builder => { builder.WithOrigins("http://localhost:4200", "http://localhost:5001").AllowAnyHeader().WithMethods(["DELETE", "PUT", "POST", "GET"]).AllowCredentials();});
+// Add CORS policy
+app.UseCors(builder => 
+{ 
+    builder.WithOrigins("http://localhost:4200", "http://localhost:5001")
+        .AllowAnyHeader()
+        .WithMethods("DELETE", "PUT", "POST", "GET")
+        .AllowCredentials();
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
