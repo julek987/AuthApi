@@ -56,13 +56,13 @@ public class AuthController : ControllerBase
         var validRoles = new[] { "admin", "employee" };
         if (!validRoles.Contains(model.Role.ToLower()))
         {
-            return BadRequest("Invalid role");
+            return BadRequest(new { message = "Invalid role" });
         }
 
         var userExists = await _context.users.AnyAsync(u => u.username == model.Username);
         if (userExists)
         {
-            return BadRequest("User already exists");
+            return BadRequest(new { message = "User already exists" });
         }
 
         // Automatically generates a salt and hashes the password
@@ -78,7 +78,7 @@ public class AuthController : ControllerBase
         _context.users.Add(user);
         await _context.SaveChangesAsync();
 
-        return Ok("User registered successfully");
+        return Ok(new { message = "User registered successfully" });
     }
 
 
