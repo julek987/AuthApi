@@ -33,7 +33,7 @@ public class AuthController : ControllerBase
         }
 
         var token = GenerateJwtToken(user);
-        
+    
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
@@ -41,12 +41,13 @@ public class AuthController : ControllerBase
             SameSite = SameSiteMode.Strict, // Allow cross-site cookies
             Expires = DateTime.UtcNow.AddMinutes(60) // Cookie expiration
         };
-        
+    
         Response.Cookies.Append("token", token, cookieOptions);
 
-        //return Ok(new { token });
-        return Ok(new { message = "Login successful, cookie set" });
+        // Return response with message and role
+        return Ok(new { message = "Login successful, cookie set", user.role });
     }
+
 
     [HttpPost("register")]
     [Authorize(Policy = "AdminOnly")]
