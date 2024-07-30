@@ -24,12 +24,26 @@ public class CustomJwtAuthenticationHandler : AuthenticationHandler<Authenticati
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (!Request.Cookies.ContainsKey("token"))
+        string token = null;
+
+        if (Request.Cookies.ContainsKey("token"))
+        {
+            token = Request.Cookies["token"];
+        }
+        else if (Request.Headers.ContainsKey("Authorization"))
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                token = authHeader.Substring("Bearer ".Length).Trim();
+            }
+        }
+
+        if (token == null)
         {
             return Task.FromResult(AuthenticateResult.Fail("Unauthorized"));
         }
 
-        var token = Request.Cookies["token"];
         var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
 
         try
